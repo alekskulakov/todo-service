@@ -1,0 +1,30 @@
+﻿services:
+  todoservice.web:
+    image: todoservice.web
+    build:
+      context: .
+      dockerfile: TodoService.Web/Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - 53062:8080
+    environment:
+      ASPNETCORE_ENVIRONMENT: DEVELOPMENT
+
+  database:
+    image: mysql:8.0.31
+    container_name: mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: tododb
+      MYSQL_USER: app
+      MYSQL_PASSWORD: 12345
+    ports:
+      - 53061:3306
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      retries: 10
